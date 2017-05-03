@@ -36,28 +36,34 @@ class Application
 
 	public function run()
 	{
-	    var routes, controller, action, className, methodName, controllerRef, controllerObj, methodRef;
+	    var routes, controller, action, className, methodName, controllerRef, controllerObj, methodRef, e;
 		let routes =  this->parseRoute();
 		let controller =  routes[0];
 		let action =  routes[1];
 
 		let className =  this->_defaultControllerNameSpace . "\\" . ucfirst(controller) . this->_controllerSuffix;
-		if (!class_exists(className)) {
-			throw new \Exception(className . " does not exist!");
+
+		try {
+			if (!class_exists(className)) {
+				throw new \Exception(className . " does not exist!");
+			}
+
+			let methodName =  action . this->_actionSuffix;
+
+			let controllerRef =  new \ReflectionClass(className);
+			if (!(controllerRef->hasMethod(methodName))) {
+				throw new \Exception(className . " does not have method " . methodName);
+			}
+
+			let controllerObj =  controllerRef->newInstance();
+			let methodRef =  controllerRef->getMethod(methodName);
+			if (!(methodRef->isPublic())) {
+				throw new \Exception(methodName . " is not public!");
+			}			
+		} catch \Exception, e {
+			// do nothing
 		}
 
-		let methodName =  action . this->_actionSuffix;
-
-		let controllerRef =  new \ReflectionClass(className);
-		if (!(controllerRef->hasMethod(methodName))) {
-			throw new \Exception(className . " does not have method " . methodName);
-		}
-
-		let controllerObj =  controllerRef->newInstance();
-		let methodRef =  controllerRef->getMethod(methodName);
-		if (!(methodRef->isPublic())) {
-			throw new \Exception(methodName . " is not public!");
-		}
 
 		return methodRef->invoke(controllerObj);
 	}

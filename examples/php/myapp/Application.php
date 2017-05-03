@@ -41,22 +41,28 @@ class Application
 		$action = $routes[1];
 
 		$className = $this->_defaultControllerNameSpace . "\\" . ucfirst($controller) . $this->_controllerSuffix;
-		if (!class_exists($className)) {
-			throw new \Exception($className . " does not exist!");
+
+		try {
+			if (!class_exists($className)) {
+				throw new \Exception($className . " does not exist!");
+			}
+
+			$methodName = $action . $this->_actionSuffix;
+
+			$controllerRef = new \ReflectionClass($className);
+			if (!($controllerRef->hasMethod($methodName))) {
+				throw new \Exception($className . " does not have method " . $methodName);
+			}
+
+			$controllerObj = $controllerRef->newInstance();
+			$methodRef = $controllerRef->getMethod($methodName);
+			if (!($methodRef->isPublic())) {
+				throw new \Exception($methodName . " is not public!");
+			}			
+		} catch (\Exception $e) {
+			// do nothing
 		}
 
-		$methodName = $action . $this->_actionSuffix;
-
-		$controllerRef = new \ReflectionClass($className);
-		if (!($controllerRef->hasMethod($methodName))) {
-			throw new \Exception($className . " does not have method " . $methodName);
-		}
-
-		$controllerObj = $controllerRef->newInstance();
-		$methodRef = $controllerRef->getMethod($methodName);
-		if (!($methodRef->isPublic())) {
-			throw new \Exception($methodName . " is not public!");
-		}
 
 		return $methodRef->invoke($controllerObj);
 	}

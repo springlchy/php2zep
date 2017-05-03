@@ -562,15 +562,30 @@ class Php2Zep
 	 */
 	public function convertStaticPointerSet($str)
 	{
-		if(preg_match('/(\w+)::(\w+)\->(\w+)([^=]*)=([^=])/', $str, $matches)) {
+		if(preg_match('/([a-zA-Z_][a-zA-Z0-9_]*+)::([a-zA-Z_][a-zA-Z0-9_]*+)\->([^=]+)=([^=])/', $str, $matches)) {
 			$this->staticLetLines[] = '    let ' . $matches[2] . ' = ' . $matches[1] . '::' . $matches[2] . ";\n";
 			print_r($this->staticLetLines);
-			return preg_replace('/(\w+)::(\w+)\->(\w+)([^=]*)=([^=])/', "$2->$3$4 = $5", $str);
+			return preg_replace('/([a-zA-Z_][a-zA-Z0-9_]*+)::([a-zA-Z_][a-zA-Z0-9_]*+)\->([^=]+)=([^=])/', "$2->$3 = $4", $str);
 		}
 
 		return $str;
 	}
 
+	/**
+	 * catch (Exception $e) => catch Exception, $e
+	 * @param  [type] $str [description]
+	 * @return [type]      [description]
+	 */
+	public function convertTryCatch($str)
+	{
+		if (preg_match('/\bcatch\s*\((\\\?([a-zA-Z_][a-zA-Z0-9_]*+\\\)*[a-zA-Z_][a-zA-Z0-9_]*+)\s+(\$[a-zA-Z_][a-zA-Z0-9_]*+)\s*\)/', $str, $matches, PREG_OFFSET_CAPTURE)) {
+			$this->lineFlag = 'catch';
+			$newCatch = 'catch ' . $matches[1][0] . ', ' . $matches[3][0];
+			return substr($str, 0, $matches[0][1]) . $newCatch . substr($str, $matches[0][1]+strlen($matches[0][0]));
+		}
+
+		return $str;
+	}
 	/**
 	 * 转换一行
 	 * @param  [type] $line [description]
@@ -595,6 +610,12 @@ class Php2Zep
 		if ($this->lineFlag == 'foreach') {
 			$this->lineFlag = '';
 			return $this->convertStatic($this->convertVars($this->convertQuote($line)));
+		}
+
+		$line = $this->convertTryCatch($line);
+		if ($this->lineFlag == 'catch') {
+			$this->lineFlag = '';
+			return $this->convertVars($line);
 		}
 
 		foreach ($convertors as $convertor) {
@@ -661,7 +682,7 @@ class Php2Zep
 		$funcStr = implode('', $lines);
 
 		if (!empty($this->staticLetLines)) {
-			$funcStr = preg_replace('/\b(\w+)::(\w+)\->/', "$2->", $funcStr);
+			$funcStr = preg_replace('/\b([a-zA-Z_][a-zA-Z0-9_]*+)::([a-zA-Z_][a-zA-Z0-9_]*+)\->/', "$2->", $funcStr);
 		}
 
 		$this->staticLetLines = [];	

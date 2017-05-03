@@ -7,7 +7,7 @@ php2zep is a tool that translate php language into zephir language
 > git clone https://github.com/springlchy/php2zep
 > ```
 
-​	Then, require the Php2Zep.php.
+​ Then, require the Php2Zep.php.
 
 > ```
 > <?php
@@ -74,7 +74,7 @@ We have the structure as below:
   >
   > class UserModel
   > {
-  > 	...
+  >   ...
   > }
   > ```
 
@@ -91,12 +91,12 @@ We have the structure as below:
   >
   > class UserController
   > {
-  > 	private $_model;
+  >   private $_model;
   >
-  > 	public function __construct()
-  > 	{
-  > 		$this->_model = new UserModel();
-  > 	}
+  >   public function __construct()
+  >   {
+  >     $this->_model = new UserModel();
+  >   }
   >     ...
   > }
   > ```
@@ -112,16 +112,16 @@ We have the structure as below:
   >
   > class Application
   > {
-  > 	private $_defaultControllerNameSpace = "\Myapp\Controllers";
-  > 	private $_defaultController = "user";
-  > 	private $_DefaultAction = "index";
+  >   private $_defaultControllerNameSpace = "\Myapp\Controllers";
+  >   private $_defaultController = "user";
+  >   private $_DefaultAction = "index";
   >
-  > 	private $_controllerSuffix = "Controller";
-  > 	private $_actionSuffix = "Action";
+  >   private $_controllerSuffix = "Controller";
+  >   private $_actionSuffix = "Action";
   >
-  > 	public function __construct()
-  > 	{
-  > 	}
+  >   public function __construct()
+  >   {
+  >   }
   >   public function parseRoute()
   >   {
   >     ...
@@ -140,7 +140,7 @@ We have the structure as below:
 
 ## Step 4: Translate php into zephir using php2zep
 
-​	convert.php
+​ convert.php
 
 > ``` php
 > $inputDir = "/home/theta/php/myapp";

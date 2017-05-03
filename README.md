@@ -122,15 +122,15 @@ We have the structure as below:
   > 	public function __construct()
   > 	{
   > 	}
-  >   	public function parseRoute()
-  >     {
-  >       ...
-  >     }
+  >   public function parseRoute()
+  >   {
+  >     ...
+  >   }
   >   
-  >     public function run()
-  >     {
-  >       ...
-  >     }
+  >   public function run()
+  >   {
+  >     ...
+  >   }
   > }
   > ```
   >

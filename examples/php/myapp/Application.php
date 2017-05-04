@@ -26,8 +26,7 @@ class Application
 			if (count($segments) == 1) {
 				$controller = $segments[0];
 			} else {
-				$controller = $segments[0];
-				$action = $segments[1];
+                list($controller, $action) = $segments;
 			}
 		}
 
@@ -36,9 +35,7 @@ class Application
 
 	public function run()
 	{
-		$routes = $this->parseRoute();
-		$controller = $routes[0];
-		$action = $routes[1];
+		list($controller, $action) = $this->parseRoute();
 
 		$className = $this->_defaultControllerNameSpace . "\\" . ucfirst($controller) . $this->_controllerSuffix;
 

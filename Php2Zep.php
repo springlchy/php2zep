@@ -30,6 +30,8 @@ class Php2Zep
 	private $varPrefix = 'x_';
 
 	private $currentFuncLines;
+	private $funcVars = [];
+	private $tmpArrVars = [];
 
 	/**
 	 * 针对函数体
@@ -586,6 +588,41 @@ class Php2Zep
 
 		return $str;
 	}
+
+	/**
+	 * convert list($a, $b, $c) = $this->getArr();
+	 * @param  [type] $str [description]
+	 * @return [type]      [description]
+	 */
+	public function convertList($str)
+	{
+		if (preg_match('/(\s*)list\s*\(([^=]+)\)\s*=\s*([^;]+)/', $str, $matches)) { // 
+			$varArr = explode(',', $matches[2]);
+			$tmpVar = '';
+			do {
+				$tmpVar = '$tmpArr' . substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456'), 0, 4);
+			} while (in_array($tmpVar, $this->funcVars) || in_array($tmpVar, $this->tmpArrVars));
+
+			$this->tmpArrVars[] = $tmpVar;
+
+			$newExpr[] = $matches[1] . 'var ' . $tmpVar . ' = ' . $matches[3] . ';';
+			foreach ($varArr as $v) {
+				$v = trim($v);
+				if (!empty($v)) {
+					$newExpr[] = $matches[1] . 'let ' . $v . ' = array_shift(' . $tmpVar . ');';
+				} else {
+					$newExpr[] = $matches[1] . 'array_shift(' . $tmpVar . ');';
+				}
+			}
+
+			$this->lineFlag = 'list';
+
+			return implode("\n", $newExpr) . "\n";
+		}
+
+		return $str;
+	}
+
 	/**
 	 * 转换一行
 	 * @param  [type] $line [description]
@@ -618,6 +655,22 @@ class Php2Zep
 			return $this->convertVars($line);
 		}
 
+		$line = $this->convertList($line);
+		if ($this->lineFlag == 'list') {
+			$this->lineFlag = '';
+			$convertors = [
+				//'convertAssigns',
+				'convertQuote',
+				'convertVars',
+				'convertMagic',
+				'convertNamespace',
+				'convertStatic',
+			];
+			foreach ($convertors as $convertor) {
+				$line = $this->{$convertor}($line);
+			}
+		}
+
 		foreach ($convertors as $convertor) {
 			$line = $this->{$convertor}($line);
 		}
@@ -640,6 +693,9 @@ class Php2Zep
 		$args = $this->getArgs($lines[0]);
 		$funcStr = implode('', $lines);
 		$vars = $this->getVars($funcStr);
+
+		$this->funcVars = $vars;
+		$this->tmpArrVars = [];
 
 		$keywords = ['$this', '$_GET', '$_POST', '$_SERVER', '$_FILES', '$_COOKIE', '$_SESSION'];
 

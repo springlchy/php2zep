@@ -26,8 +26,9 @@ class Application
 			if (count(segments) == 1) {
 				let controller =  segments[0];
 			} else {
-				let controller =  segments[0];
-				let action =  segments[1];
+                var tmpArrbyt5 = segments;
+                let controller = array_shift(tmpArrbyt5);
+                let action = array_shift(tmpArrbyt5);
 			}
 		}
 
@@ -36,10 +37,10 @@ class Application
 
 	public function run()
 	{
-	    var routes, controller, action, className, methodName, controllerRef, controllerObj, methodRef, e;
-		let routes =  this->parseRoute();
-		let controller =  routes[0];
-		let action =  routes[1];
+	    var controller, action, className, methodName, controllerRef, controllerObj, methodRef, e;
+		var tmpArrmna1 = this->parseRoute();
+		let controller = array_shift(tmpArrmna1);
+		let action = array_shift(tmpArrmna1);
 
 		let className =  this->_defaultControllerNameSpace . "\\" . ucfirst(controller) . this->_controllerSuffix;
 

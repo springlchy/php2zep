@@ -669,6 +669,8 @@ class Php2Zep
 			foreach ($convertors as $convertor) {
 				$line = $this->{$convertor}($line);
 			}
+
+			return $line;
 		}
 
 		foreach ($convertors as $convertor) {
